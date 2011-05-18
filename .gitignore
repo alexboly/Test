@@ -1,2 +1,6 @@
 ~*
 *.class
+*.iml
+*.ipr
+*.iws
+.metadata*

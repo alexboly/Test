@@ -48,6 +48,19 @@ public class WordWrapTests {
     }
 
     @Test
+    public void getTextWrappedOnTwoRowsWithTwoStartingSpaces() {
+        String initialRow = "abc  def";
+        int wantedRowLength = 3;
+
+        List<String> expectedText = new LinkedList<String>();
+        expectedText.add("abc");
+        expectedText.add("def");
+
+        List<String> actualText = wrapText(initialRow, wantedRowLength);
+        assertThat(actualText, is(expectedText));
+    }
+
+    @Test
     public void getTextWrappedOnThreeRowsWithSpaces() {
         String initialRow = "a b c d e f";
         int wantedRowLength = 3;
@@ -103,6 +116,18 @@ public class WordWrapTests {
         List<String> actualText = wrapText(initialRow, wantedRowLength);
         assertThat(actualText, is(expectedText));
     }
+    
+    @Test
+    public void textContainsOnlySpacesAfterFirstLine(){
+        String initialRow = "abc         ";
+        int wantedRowLength = 3;
+
+        List<String> expectedText = new LinkedList<String>();
+        expectedText.add("abc");
+
+        List<String> actualText = wrapText(initialRow, wantedRowLength);
+        assertThat(actualText, is(expectedText));    	
+    }
 
     private List<String> wrapText(String text, int wantedRowLength) {
         List<String> rows = new LinkedList<String>();
@@ -113,12 +138,14 @@ public class WordWrapTests {
             int startPosition = 0;
             int endPosition = wantedRowLength;
             while (startPosition < text.length()) {
-                if (text.substring(startPosition).startsWith(" ")) {
-                    startPosition++;
-                    endPosition++;
-                }
+            	int numberOfSpacesAtBeginning = countLeadingSpaces(text, startPosition);
+                startPosition += numberOfSpacesAtBeginning;
+                endPosition += numberOfSpacesAtBeginning;
 
-                rows.add(substring(text, startPosition, endPosition));
+                String nextRow = getNextRow(text, startPosition, endPosition);
+                if(!nextRow.isEmpty()){
+                	rows.add(nextRow);
+                }
 
                 startPosition += wantedRowLength;
                 endPosition += wantedRowLength;
@@ -131,7 +158,19 @@ public class WordWrapTests {
         return rows;
     }
 
-    private String substring(String text, int startPosition, int endPosition) {
+	private int countLeadingSpaces(String text, int initialPosition) {
+		int numberOfSpacesAtBeginning = 0;
+		while (text.substring(initialPosition).startsWith(" ")) {
+			++numberOfSpacesAtBeginning;
+		    initialPosition++;
+		}
+		return numberOfSpacesAtBeginning;
+	}
+
+    private String getNextRow(String text, int startPosition, int endPosition) {
+    	if(endPosition > text.length()){
+    		return "";
+    	}
         return text.substring(startPosition, endPosition).trim();
     }
 }

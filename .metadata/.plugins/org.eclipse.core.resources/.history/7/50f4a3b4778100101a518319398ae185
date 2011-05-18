@@ -8,7 +8,7 @@ import org.junit.Test;
 public class WordWrapTests {
 
 	@Test
-	public void rowShorterThanRowLenghtDoesntGetWrapped(){
+	public void Test(){
 		String initialRow = "abcdefg";
 		
 		String wrappedRow = wrapRow(initialRow, 10);
@@ -16,7 +16,8 @@ public class WordWrapTests {
 		assertEquals("abcdefg", wrappedRow);
 	}
 
-	private String wrapRow(String initialRow, int rowLength) {
-		return initialRow;
+	private String wrapRow(String initialRow, int i) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

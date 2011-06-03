@@ -174,13 +174,8 @@ public class WordWrapTests {
 		if(text.length() == 0){
 			return rows;
 		}
-
-		if(text.length() < wantedRowLength){
-			rows.add(text);
-			return rows;
-		}
 		
-        nextRow = getNextRow(text, 0, wantedRowLength);
+        nextRow = getNextRowBetter(text, wantedRowLength);
         if(!nextRow.isEmpty()){
         	rows.add(nextRow);
         }
@@ -188,6 +183,14 @@ public class WordWrapTests {
         text = text.substring(nextRow.length());
         return wrapTextRecursively(text, wantedRowLength, rows);
 	}
+	
+    private String getNextRowBetter(String text, int endPosition) {
+    	if(endPosition > text.length()){
+    		return text;
+    	}
+        return text.substring(0, endPosition).trim();
+    }
+
 
 	private int countLeadingSpaces(String text, int initialPosition) {
 		int numberOfSpacesAtBeginning = 0;

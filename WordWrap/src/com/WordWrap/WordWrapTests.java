@@ -12,7 +12,11 @@ import static org.junit.Assert.assertThat;
 
 public class WordWrapTests {
 
-    @Test
+    private int startPosition;
+	private int endPosition;
+	private String nextRow;
+
+	@Test
     public void rowShorterThanRowLenghtDoesntGetWrapped() {
         String initialRow = "abcdefg";
 
@@ -132,17 +136,23 @@ public class WordWrapTests {
     private List<String> wrapText(String text, int wantedRowLength) {
         List<String> rows = new LinkedList<String>();
 
-        if (text.length() < wantedRowLength) {
+        //return wrapText(text, wantedRowLength, rows);
+        return wrapTextRecursively(text, wantedRowLength, rows);
+    }
+
+	private List<String> wrapText(String text, int wantedRowLength,	List<String> rows) {
+		if (text.length() < wantedRowLength) {
             rows.add(text);
         } else {
-            int startPosition = 0;
-            int endPosition = wantedRowLength;
+            startPosition = 0;
+            endPosition = wantedRowLength;
+
             while (startPosition < text.length()) {
             	int numberOfSpacesAtBeginning = countLeadingSpaces(text, startPosition);
                 startPosition += numberOfSpacesAtBeginning;
                 endPosition += numberOfSpacesAtBeginning;
 
-                String nextRow = getNextRow(text, startPosition, endPosition);
+                nextRow = getNextRow(text, startPosition, endPosition);
                 if(!nextRow.isEmpty()){
                 	rows.add(nextRow);
                 }
@@ -156,7 +166,28 @@ public class WordWrapTests {
         }
 
         return rows;
-    }
+	}
+	
+	private List<String> wrapTextRecursively(String text, int wantedRowLength, List<String> rows){
+		text = text.trim();
+		
+		if(text.length() == 0){
+			return rows;
+		}
+
+		if(text.length() < wantedRowLength){
+			rows.add(text);
+			return rows;
+		}
+		
+        nextRow = getNextRow(text, 0, wantedRowLength);
+        if(!nextRow.isEmpty()){
+        	rows.add(nextRow);
+        }
+        
+        text = text.substring(nextRow.length());
+        return wrapTextRecursively(text, wantedRowLength, rows);
+	}
 
 	private int countLeadingSpaces(String text, int initialPosition) {
 		int numberOfSpacesAtBeginning = 0;

@@ -1,6 +1,5 @@
 package com.WordWrap;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -12,11 +11,7 @@ import static org.junit.Assert.assertThat;
 
 public class WordWrapTests {
 
-    private int startPosition;
-	private int endPosition;
-	private String nextRow;
-
-	@Test
+    @Test
     public void rowShorterThanRowLenghtDoesntGetWrapped() {
         String initialRow = "abcdefg";
 
@@ -120,9 +115,9 @@ public class WordWrapTests {
         List<String> actualText = wrapText(initialRow, wantedRowLength);
         assertThat(actualText, is(expectedText));
     }
-    
+
     @Test
-    public void textContainsOnlySpacesAfterFirstLine(){
+    public void textContainsOnlySpacesAfterFirstLine() {
         String initialRow = "abc         ";
         int wantedRowLength = 3;
 
@@ -130,81 +125,81 @@ public class WordWrapTests {
         expectedText.add("abc");
 
         List<String> actualText = wrapText(initialRow, wantedRowLength);
-        assertThat(actualText, is(expectedText));    	
+        assertThat(actualText, is(expectedText));
     }
 
     private List<String> wrapText(String text, int wantedRowLength) {
-        List<String> rows = new LinkedList<String>();
+        // return wrapTextIterative(text, wantedRowLength);
+        // return wrapTextRecursively(text, wantedRowLength, new LinkedList<String>());
 
-        //return wrapText(text, wantedRowLength, rows);
-        return wrapTextRecursively(text, wantedRowLength, rows);
+        StringWrapper stringWrapper = new StringWrapper(text);
+        return stringWrapper.wrapText(wantedRowLength);
     }
 
-	private List<String> wrapText(String text, int wantedRowLength,	List<String> rows) {
-		if (text.length() < wantedRowLength) {
-            rows.add(text);
-        } else {
-            startPosition = 0;
-            endPosition = wantedRowLength;
 
-            while (startPosition < text.length()) {
-            	int numberOfSpacesAtBeginning = countLeadingSpaces(text, startPosition);
-                startPosition += numberOfSpacesAtBeginning;
-                endPosition += numberOfSpacesAtBeginning;
-
-                nextRow = getNextRow(text, startPosition, endPosition);
-                if(!nextRow.isEmpty()){
-                	rows.add(nextRow);
-                }
-
-                startPosition += wantedRowLength;
-                endPosition += wantedRowLength;
-                if (endPosition > (text.length())) {
-                    endPosition = text.length();
-                }
-            }
+    private List<String> wrapTextIterative(String text, int wantedRowLength) {
+        List<String> rows = new LinkedList<String>();
+        text = text.trim();
+        while (text.length() > 0) {
+            text = text.trim();
+            String nextRow = getNextRow(text, wantedRowLength);
+            rows.add(nextRow);
+            text = removeLeadingText(text, nextRow);
         }
 
         return rows;
-	}
-	
-	private List<String> wrapTextRecursively(String text, int wantedRowLength, List<String> rows){
-		text = text.trim();
-		
-		if(text.length() == 0){
-			return rows;
-		}
-		
-        nextRow = getNextRowBetter(text, wantedRowLength);
-        if(!nextRow.isEmpty()){
-        	rows.add(nextRow);
+    }
+
+    private List<String> wrapTextRecursively(String text, int wantedRowLength, List<String> rows) {
+        text = text.trim();
+        if (text.length() == 0) {
+            return rows;
         }
-        
-        text = text.substring(nextRow.length());
+        String nextRow = getNextRow(text, wantedRowLength);
+        rows.add(nextRow);
+        text = removeLeadingText(text, nextRow);
+
         return wrapTextRecursively(text, wantedRowLength, rows);
-	}
-	
-    private String getNextRowBetter(String text, int endPosition) {
-    	if(endPosition > text.length()){
-    		return text;
-    	}
+    }
+
+    private String removeLeadingText(String text, String leadingText) {
+        return text.substring(leadingText.length());
+    }
+
+    private String getNextRow(String text, int endPosition) {
+        if (endPosition > text.length()) {
+            return text;
+        }
         return text.substring(0, endPosition).trim();
     }
 
+    class StringWrapper {
+        private String text;
 
-	private int countLeadingSpaces(String text, int initialPosition) {
-		int numberOfSpacesAtBeginning = 0;
-		while (text.substring(initialPosition).startsWith(" ")) {
-			++numberOfSpacesAtBeginning;
-		    initialPosition++;
-		}
-		return numberOfSpacesAtBeginning;
-	}
+        public StringWrapper(String text) {
+            this.text = text;
+        }
 
-    private String getNextRow(String text, int startPosition, int endPosition) {
-    	if(endPosition > text.length()){
-    		return "";
-    	}
-        return text.substring(startPosition, endPosition).trim();
+        public List<String> wrapText(int wantedRowLength) {
+            return this.wrapTextRecursively(wantedRowLength, new LinkedList<String>());
+        }
+
+        private List<String> wrapTextRecursively(int wantedRowLength, List<String> rows) {
+            text = text.trim();
+            if (text.length() == 0) {
+                return rows;
+            }
+            String nextRow = extractNextRow(wantedRowLength);
+            rows.add(nextRow);
+
+            return this.wrapTextRecursively(wantedRowLength, rows);
+        }
+
+        private String extractNextRow(int endPosition) {
+            String leadingText;
+            leadingText = (endPosition > text.length()) ? text : text.substring(0, endPosition).trim();
+            text = text.substring(leadingText.length());
+            return leadingText;
+        }
     }
 }
